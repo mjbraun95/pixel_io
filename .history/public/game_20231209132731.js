@@ -37,34 +37,26 @@ function create() {
     // Create cursor keys for movement
     cursors = this.input.keyboard.createCursorKeys();
 
-    // Initialize lastPosition
-    lastPosition = { x: player.x, y: player.y };
-
     // Bind the mineBlock function to 'this' (the scene)
     this.mineBlock = mineBlock.bind(this);
 }
 
 function update() {
     // Discrete player movement with mining
-    let moved = false;
     if (Phaser.Input.Keyboard.JustDown(cursors.left) && player.x > 0) {
+        this.mineBlock((player.x - blockSize) / blockSize, player.y / blockSize);
         player.x -= blockSize;
-        moved = true;
     } else if (Phaser.Input.Keyboard.JustDown(cursors.right) && player.x < config.width - blockSize) {
+        this.mineBlock((player.x + blockSize) / blockSize, player.y / blockSize);
         player.x += blockSize;
-        moved = true;
     }
 
     if (Phaser.Input.Keyboard.JustDown(cursors.up) && player.y > 0) {
+        this.mineBlock(player.x / blockSize, (player.y - blockSize) / blockSize);
         player.y -= blockSize;
-        moved = true;
     } else if (Phaser.Input.Keyboard.JustDown(cursors.down) && player.y < config.height - blockSize) {
+        this.mineBlock(player.x / blockSize, (player.y + blockSize) / blockSize);
         player.y += blockSize;
-        moved = true;
-    }
-
-    if (moved) {
-        this.mineBlock(player.x / blockSize, player.y / blockSize);
     }
 }
 
@@ -73,19 +65,9 @@ function mineBlock(x, y) {
     var gridX = Math.floor(x);
     var gridY = Math.floor(y);
 
-    // Change the previous block to black
-    if (grid[lastPosition.x][lastPosition.y] === 'player') {
-        var previousBlock = this.add.graphics({ fillStyle: { color: 0x000000 } });
-        previousBlock.fillRect(lastPosition.x * blockSize, lastPosition.y * blockSize, blockSize, blockSize);
-        grid[lastPosition.x][lastPosition.y] = 'air';
+    if (grid[gridX][gridY] === 'dirt') {
+        grid[gridX][gridY] = 'air';
+        var minedBlock = this.add.graphics({ fillStyle: { color: 0x000000 } });
+        minedBlock.fillRect(gridX * blockSize, gridY * blockSize, blockSize, blockSize);
     }
-
-    // Update the current block to blue (player's color)
-    grid[gridX][gridY] = 'player';
-    var currentBlock = this.add.graphics({ fillStyle: { color: 0x0000ff } });
-    currentBlock.fillRect(gridX * blockSize, gridY * blockSize, blockSize, blockSize);
-
-    // Update the last position
-    lastPosition.x = gridX;
-    lastPosition.y = gridY;
 }

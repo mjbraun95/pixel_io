@@ -37,9 +37,6 @@ function create() {
     // Create cursor keys for movement
     cursors = this.input.keyboard.createCursorKeys();
 
-    // Initialize lastPosition
-    lastPosition = { x: player.x, y: player.y };
-
     // Bind the mineBlock function to 'this' (the scene)
     this.mineBlock = mineBlock.bind(this);
 }
@@ -73,19 +70,14 @@ function mineBlock(x, y) {
     var gridX = Math.floor(x);
     var gridY = Math.floor(y);
 
-    // Change the previous block to black
-    if (grid[lastPosition.x][lastPosition.y] === 'player') {
+    // Change the previous block to black if it was air
+    if (grid[gridX][gridY] === 'air') {
         var previousBlock = this.add.graphics({ fillStyle: { color: 0x000000 } });
-        previousBlock.fillRect(lastPosition.x * blockSize, lastPosition.y * blockSize, blockSize, blockSize);
-        grid[lastPosition.x][lastPosition.y] = 'air';
+        previousBlock.fillRect(gridX * blockSize, gridY * blockSize, blockSize, blockSize);
     }
 
-    // Update the current block to blue (player's color)
+    // Change the current block to blue (player's color)
     grid[gridX][gridY] = 'player';
     var currentBlock = this.add.graphics({ fillStyle: { color: 0x0000ff } });
     currentBlock.fillRect(gridX * blockSize, gridY * blockSize, blockSize, blockSize);
-
-    // Update the last position
-    lastPosition.x = gridX;
-    lastPosition.y = gridY;
 }
