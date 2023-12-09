@@ -42,6 +42,9 @@ function create() {
 
     // Bind the mineBlock function to 'this' (the scene)
     this.mineBlock = mineBlock.bind(this);
+
+    // Mine the initial block
+    this.mineBlock(0, 0);
 }
 
 function update() {
