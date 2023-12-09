@@ -63,13 +63,13 @@ function create() {
     player.fillRect(blockSize / 2 - (blockSize / 2), blockSize / 2 - (blockSize / 2), blockSize, blockSize);
 
     // Finally, create the score text
-    this.scoreText = this.add.text(10, 10, 'Score: 0', { // Temporarily positioning at top-left
+    this.scoreText = this.add.text(config.width / 2, 16, 'Score: 0', {
         fontSize: '32px', 
         fill: '#FFF',
         backgroundColor: '#000', 
         padding: 10,
         align: 'center'
-    });
+    }).setOrigin(0.5, 0);
     this.scoreText.setScrollFactor(0);
 
 
@@ -112,7 +112,6 @@ function renderGrid() {
         }
     }
 }
-
 
 function update() {
     // Discrete player movement with mining
@@ -163,6 +162,8 @@ function mineBlock(x, y) {
 
         // Update the score text
         this.scoreText.setText('Score: ' + score);
+        // Bring the score text to the top
+        this.scoreText.setDepth(1);
 
         // Log the score and size for debugging (or display it on the screen)
         console.log("Score: " + score + ", Size: " + size);
