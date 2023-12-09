@@ -34,9 +34,10 @@ function create() {
         }
     }
 
-    // Create a player (represented by a blue square)
-    player = this.add.graphics({ fillStyle: { color: 0x0000ff } });
-    player.fillRect(blockSize / 2 - (blockSize / 2), blockSize / 2 - (blockSize / 2), blockSize, blockSize);
+    // Create a pixel (represented by a small square)
+    player = this.physics.add.sprite(blockSize / 2, blockSize / 2, 'pixel').setOrigin(0.5, 0.5);
+    this.add.graphics({ fillStyle: { color: 0x0000ff } })
+        .fillRect(player.x - (blockSize / 2), player.y - (blockSize / 2), blockSize, blockSize);
 
     // Create cursor keys for movement
     cursors = this.input.keyboard.createCursorKeys();
@@ -44,15 +45,15 @@ function create() {
 
 function update() {
     // Discrete player movement
-    if (Phaser.Input.Keyboard.JustDown(cursors.left) && player.x > 0) {
+    if (Phaser.Input.Keyboard.JustDown(cursors.left) && player.x > blockSize / 2) {
         player.x -= blockSize;
-    } else if (Phaser.Input.Keyboard.JustDown(cursors.right) && player.x < config.width - blockSize) {
+    } else if (Phaser.Input.Keyboard.JustDown(cursors.right) && player.x < config.width - blockSize / 2) {
         player.x += blockSize;
     }
 
-    if (Phaser.Input.Keyboard.JustDown(cursors.up) && player.y > 0) {
+    if (Phaser.Input.Keyboard.JustDown(cursors.up) && player.y > blockSize / 2) {
         player.y -= blockSize;
-    } else if (Phaser.Input.Keyboard.JustDown(cursors.down) && player.y < config.height - blockSize) {
+    } else if (Phaser.Input.Keyboard.JustDown(cursors.down) && player.y < config.height - blockSize / 2) {
         player.y += blockSize;
     }
 }
