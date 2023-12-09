@@ -86,6 +86,9 @@ function create() {
     // Bind the mineBlock function to 'this' (the scene)
     this.mineBlock = mineBlock.bind(this);
 
+    // Bind the mineBlocks function to 'this' (the scene)
+    this.mineBlocks = mineBlocks.bind(this);
+
     // Mine the initial block
     this.mineBlock(0, 0);
 }
@@ -133,19 +136,24 @@ function update() {
     }
 
     if (moved) {
-        this.mineBlock(player.x / blockSize, player.y / blockSize);
+        // this.mineBlock(player.x / blockSize, player.y / blockSize);
+        this.mineBlocks(player.x / blockSize, player.y / blockSize, size);
     }
 
     player.fillRect(blockSize / 2 - (blockSize / 2), blockSize / 2 - (blockSize / 2), blockSize*size, blockSize*size);
+    player.setDepth(1);
 }
 
-// function updatePlayerSize() {
-//     var newSize = Math.floor(score / 30) + 1;
-//     if (newSize > playerSize) {
-//         playerSize = newSize;
-//         // Update the player's visual representation here
-//     }
-// }
+// Function to mine multiple blocks based on the size of the player
+function mineBlocks(x, y, size) {
+    for (let i = 0; i < size; i++) {
+        for (let j = 0; j < size; j++) {
+            this.mineBlock(x + i, y + j);
+        }
+    }
+    this.mineBlock(x, y);
+}
+
 
 function mineBlock(x, y) {
     var gridX = Math.floor(x);
