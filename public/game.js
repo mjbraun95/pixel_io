@@ -28,6 +28,9 @@ var blockSize = 20; // Size of each block in pixels
 var mapWidth = 100;
 var mapHeight = 100;
 var grid; // To store the grid state
+var score = 0;
+var size = 0;
+
 
 function preload() {
     // No assets to preload
@@ -52,9 +55,23 @@ function create() {
         }
     }
 
+    // Render the grid
+    renderGrid.call(this);
+
     // Create a player (represented by a blue square)
     player = this.add.graphics({ fillStyle: { color: 0x0000ff } });
     player.fillRect(blockSize / 2 - (blockSize / 2), blockSize / 2 - (blockSize / 2), blockSize, blockSize);
+
+    // Finally, create the score text
+    this.scoreText = this.add.text(10, 10, 'Score: 0', { // Temporarily positioning at top-left
+        fontSize: '32px', 
+        fill: '#FFF',
+        backgroundColor: '#000', 
+        padding: 10,
+        align: 'center'
+    });
+    this.scoreText.setScrollFactor(0);
+
 
     // Create cursor keys for movement
     cursors = this.input.keyboard.createCursorKeys();
@@ -71,9 +88,6 @@ function create() {
 
     // Mine the initial block
     this.mineBlock(0, 0);
-
-    // Render the grid
-    renderGrid.call(this);
 }
 
 function renderGrid() {
@@ -98,6 +112,7 @@ function renderGrid() {
         }
     }
 }
+
 
 function update() {
     // Discrete player movement with mining
@@ -124,9 +139,34 @@ function update() {
 }
 
 function mineBlock(x, y) {
-    // Convert the coordinates to grid indexes
     var gridX = Math.floor(x);
     var gridY = Math.floor(y);
+
+    if (grid[gridX][gridY] !== 'player') {
+        // Increment size
+        size++;
+
+        // Calculate score based on block type
+        switch(grid[gridX][gridY]) {
+            case ironColor:
+                score += 5;
+                break;
+            case silverColor:
+                score += 10;
+                break;
+            case goldColor:
+                score += 25;
+                break;
+            default: // dirt
+                score += 1;
+        }
+
+        // Update the score text
+        this.scoreText.setText('Score: ' + score);
+
+        // Log the score and size for debugging (or display it on the screen)
+        console.log("Score: " + score + ", Size: " + size);
+    }
 
     // Change the previous block to black
     if (grid[lastPosition.x][lastPosition.y] === 'player') {
@@ -144,3 +184,4 @@ function mineBlock(x, y) {
     lastPosition.x = gridX;
     lastPosition.y = gridY;
 }
+
