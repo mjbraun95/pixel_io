@@ -29,7 +29,7 @@ var mapWidth = 100;
 var mapHeight = 100;
 var grid; // To store the grid state
 var score = 0;
-var size = 0;
+var size = 1;
 
 
 function preload() {
@@ -60,7 +60,7 @@ function create() {
 
     // Create a player (represented by a blue square)
     player = this.add.graphics({ fillStyle: { color: 0x0000ff } });
-    player.fillRect(blockSize / 2 - (blockSize / 2), blockSize / 2 - (blockSize / 2), blockSize, blockSize);
+    player.fillRect(blockSize / 2 - (blockSize / 2), blockSize / 2 - (blockSize / 2), blockSize*size, blockSize*size);
 
     // Finally, create the score text
     this.scoreText = this.add.text(config.width / 2, 16, 'Score: 0', {
@@ -135,15 +135,23 @@ function update() {
     if (moved) {
         this.mineBlock(player.x / blockSize, player.y / blockSize);
     }
+
+    player.fillRect(blockSize / 2 - (blockSize / 2), blockSize / 2 - (blockSize / 2), blockSize*size, blockSize*size);
 }
+
+// function updatePlayerSize() {
+//     var newSize = Math.floor(score / 30) + 1;
+//     if (newSize > playerSize) {
+//         playerSize = newSize;
+//         // Update the player's visual representation here
+//     }
+// }
 
 function mineBlock(x, y) {
     var gridX = Math.floor(x);
     var gridY = Math.floor(y);
 
     if (grid[gridX][gridY] !== 'player') {
-        // Increment size
-        size++;
 
         // Calculate score based on block type
         switch(grid[gridX][gridY]) {
@@ -164,9 +172,9 @@ function mineBlock(x, y) {
         this.scoreText.setText('Score: ' + score);
         // Bring the score text to the top
         this.scoreText.setDepth(1);
-
         // Log the score and size for debugging (or display it on the screen)
         console.log("Score: " + score + ", Size: " + size);
+        size = Math.floor(Math.sqrt(Math.floor(score/10)));
     }
 
     // Change the previous block to black
