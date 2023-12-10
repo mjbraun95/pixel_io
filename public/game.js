@@ -5,8 +5,8 @@ var goldColor = 0xFFD700; // Bright gold for gold
 
 var config = {
     type: Phaser.AUTO,
-    width: 480, // Grid width: 24 blocks * 20 pixels each
-    height: 360, // Grid height: 18 blocks * 20 pixels each
+    width: 1920, // Grid width: 24 blocks * 20 pixels each
+    height: 1080, // Grid height: 18 blocks * 20 pixels each
     backgroundColor: dirtColor, // Brown background
     physics: {
         default: 'arcade',
@@ -24,9 +24,9 @@ var config = {
 var game = new Phaser.Game(config);
 var player;
 var cursors;
-var blockSize = 20; // Size of each block in pixels
-var mapWidth = 100;
-var mapHeight = 100;
+var blockSize = 4; // Size of each block in pixels
+var mapWidth = 500;
+var mapHeight = 200;
 var grid; // To store the grid state
 var score = 0;
 var size = 1;
@@ -81,7 +81,7 @@ function create() {
 
     // Set the camera to follow the player
     this.cameras.main.startFollow(player);
-    this.cameras.main.setBounds(0, 0, 100 * blockSize, 100 * blockSize);
+    this.cameras.main.setBounds(0, 0, mapWidth * blockSize, mapHeight * blockSize);
 
     // Bind the mineBlock function to 'this' (the scene)
     this.mineBlock = mineBlock.bind(this);
@@ -118,70 +118,82 @@ function renderGrid() {
 
 function update() {
     // Discrete player movement with mining
-    let moved = false;
+    let moved = "nowhere";
     if (Phaser.Input.Keyboard.JustDown(cursors.left) && player.x > 0) {
         player.x -= blockSize;
-        moved = true;
+        moved = "left";
     } else if (Phaser.Input.Keyboard.JustDown(cursors.right) && player.x < (mapWidth - 1) * blockSize) {
         player.x += blockSize;
-        moved = true;
+        moved = "right";
     }
-
     if (Phaser.Input.Keyboard.JustDown(cursors.up) && player.y > 0) {
         player.y -= blockSize;
-        moved = true;
+        moved = "up";
     } else if (Phaser.Input.Keyboard.JustDown(cursors.down) && player.y < (mapHeight - 1) * blockSize) {
         player.y += blockSize;
-        moved = true;
+        moved = "down";
     }
 
-    if (moved) {
+    if (moved !== "nowhere") {
         // this.mineBlock(player.x / blockSize, player.y / blockSize);
-        this.mineBlocks(player.x / blockSize, player.y / blockSize, size);
+        this.mineBlocks(player.x / blockSize, player.y / blockSize, size, moved);
     }
 
     player.fillRect(blockSize / 2 - (blockSize / 2), blockSize / 2 - (blockSize / 2), blockSize*size, blockSize*size);
     player.setDepth(1);
 }
 
-// Function to mine multiple blocks based on the size of the player
-function mineBlocks(x, y, size) {
-    for (let i = 0; i < size; i++) {
-        for (let j = 0; j < size; j++) {
-            this.mineBlock(x + i, y + j);
-        }
-    }
-    this.mineBlock(x, y);
+function checkBlockType(x, y) {
+
 }
 
+// Define the scores for each block type
+const blockScores = {
+    [ironColor]: 5,
+    [silverColor]: 10,
+    [goldColor]: 25,
+    'default': 0  // dirt
+};
+
+// Function to mine multiple blocks based on the size of the player
+function mineBlocks(x, y, size, moved) {
+    this.mineBlock(x, y);
+    if (moved === "left") {
+        for (let j = 0; j < size; j++) {
+            this.mineBlock(x, y + j);
+        }
+    } else if (moved === "right") {
+        for (let j = 0; j < size; j++) {
+            this.mineBlock(x + size - 1, y + j);
+        }
+    } else if (moved === "up") {
+        for (let i = 0; i < size; i++) {
+            this.mineBlock(x + i, y);
+        }
+    } else if (moved === "down") {
+        for (let i = 0; i < size; i++) {
+            this.mineBlock(x + i, y + size - 1);
+        }
+    }
+}
 
 function mineBlock(x, y) {
     var gridX = Math.floor(x);
     var gridY = Math.floor(y);
+    var blockType = grid[gridX][gridY];
 
-    if (grid[gridX][gridY] !== 'player') {
+    if (blockType !== 'player') {
+        // Update the score based on block type
+        score += blockScores[blockType] || blockScores['default'];
 
-        // Calculate score based on block type
-        switch(grid[gridX][gridY]) {
-            case ironColor:
-                score += 5;
-                break;
-            case silverColor:
-                score += 10;
-                break;
-            case goldColor:
-                score += 25;
-                break;
-            default: // dirt
-                score += 1;
-        }
-
-        // Update the score text
+        // Update the score text + Bring the score text to the top
         this.scoreText.setText('Score: ' + score);
-        // Bring the score text to the top
         this.scoreText.setDepth(1);
+
         // Log the score and size for debugging (or display it on the screen)
         console.log("Score: " + score + ", Size: " + size);
+
+        // Update the size of the player based on the score
         size = Math.floor(Math.sqrt(Math.floor(score/10)));
     }
 
@@ -192,7 +204,6 @@ function mineBlock(x, y) {
         grid[lastPosition.x][lastPosition.y] = 'air';
     }
 
-    // Update the current block to blue (player's color)
     grid[gridX][gridY] = 'player';
     var currentBlock = this.add.graphics({ fillStyle: { color: 0x0000ff } });
     currentBlock.fillRect(gridX * blockSize, gridY * blockSize, blockSize, blockSize);
